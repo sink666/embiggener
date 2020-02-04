@@ -3,7 +3,7 @@
 A program to arbitrarily enlarge files.
 
 ##### How to use:
-./embiggen foo.png
+./embiggen foo.png > bar.png
 
 Supported types:
 * PNG
