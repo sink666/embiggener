@@ -4,21 +4,24 @@
 #include <string.h>
 
 void
-biggen_itxt(unsigned char **dataptr, size_t *sizeptr)
+biggen_text(struct chunkdata *memeberptr)
 {
-	stringtoadd[]="What the fuck did you just fucking say about me, you little bitch?";
-
-
+        unsigned char keytoadd[80]="69696969696969696969696969696969696969696969696969696969696969696969:"
+	unsigned char valtoadd[]="What the fuck did you just fucking say about me, you little bitch?";
+	memberptr->length=sizeof(keytoadd)+sizeof(valtoadd-1);
+	memberptr->data=malloc(memberptr->length);
+	memcpy(memberptr->data[0], &keytoadd, sizeof(keytoadd)*1);
+	memcpy(memberptr->data[81], &valtoadd, sizeof(valtoadd)*1);
 
 }
 
 struct chunkadder{
 	char const *name;
-	void (*func)(unsigned char **dataptr, size_t *sizeptr);
+	void (*func)(struct chunkdata *memberptr);
 };
 
 struct chunkadder const chunkadderlist[]={
-	{"iTXt", biggen_itxt},
+	{"tEXt", biggen_text},
 };
 
 struct chunkdata{
@@ -53,7 +56,6 @@ b	fread(header, 1, 8, fp);
 	puts("header read successfully");
 
 	unsigned char tempdata[4];
-	unsigned char *chunkdata=NULL;
 	struct chunkdata *cdataarray=NULL;
 	size_t cdatalength=0;
 	for(;;){
@@ -80,6 +82,12 @@ b	fread(header, 1, 8, fp);
 		cmember->data=malloc(cmember->length);
 		fread(cmember->data, 1, cmember->length, fp);
 		fread(cmember->crc, 1, 4, fp);
+
+	}
+
+	/* add chunks to file */
+	for(;;)
+	{
 
 	}
 
