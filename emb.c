@@ -4,25 +4,28 @@
 #include <string.h>
 
 void
-biggen_idat(unsigned char **dataptr, size_t *sizeptr)
+biggen_itxt(unsigned char **dataptr, size_t *sizeptr)
 {
+	stringtoadd[]="What the fuck did you just fucking say about me, you little bitch?";
+
+
 
 }
 
-void
-biggen_iccp(unsigned char **dataptr, size_t *sizeptr)
-{
-
-}
-
-struct chunk{
+struct chunkadder{
 	char const *name;
 	void (*func)(unsigned char **dataptr, size_t *sizeptr);
 };
 
-struct chunk const chunktypelist[]={
-	{"IDAT", biggen_idat},
-	{"iCCP", biggen_iccp},
+struct chunkadder const chunkadderlist[]={
+	{"iTXt", biggen_itxt},
+};
+
+struct chunkdata{
+	unsigned char name[4];
+	size_t length;
+	unsigned char *data;
+	unsigned char crc[4];
 };
 
 int
@@ -41,7 +44,7 @@ main(int argc, char *argv[])
 	}
 
 	char header[8];
-	fread(header, 1, 8, fp);
+b	fread(header, 1, 8, fp);
 	if(memcmp(header, "\x89PNG\r\n\x1a\n", 8)!=0){
 		perror("png header damaged or not present");
 		return 1;
@@ -49,31 +52,34 @@ main(int argc, char *argv[])
 
 	puts("header read successfully");
 
-        /* REPL: read, embiggen, print, loop */
-	unsigned char chunkheader[4];
+	unsigned char tempdata[4];
 	unsigned char *chunkdata=NULL;
+	struct chunkdata *cdataarray=NULL;
+	size_t cdatalength=0;
 	for(;;){
-		fread(chunkheader, 1, 4, fp);
+		fread(tempdata, 1, 4, fp);
 
 		if(feof(fp))
 			break;
 
-		size_t chunksize;
-		chunksize=((size_t)chunkheader[0]<<24)+
-			((size_t)chunkheader[1]<<16)+
-			((size_t)chunkheader[2]<<8)+
-			((size_t)chunkheader[3]);
+		cdatalength++;
+		cdataarray=realloc(cdatalength*sizeof(struct chunkdata));
 
-		fread(chunkheader, 1, 4, fp);
+		struct chunkdata *cmember=&cdataarray[cdatalength-1];
 
+		/* transform chunk length from bytes to size_t */
+		cmember->length=((size_t)tempdata[0]<<24)+
+			((size_t)tempdata[1]<<16)+
+			((size_t)tempdata[2]<<8)+
+			((size_t)tempdata[3]);
 
+		/* read chunk name */
+		fread(cmemeber->name, 1, 4, fp);
 
-		chunkdata=realloc(chunkdata, chunksize);
-		fread(chunkdata, 1, chunksize, fp);
-		fread(chunkheader, 1, 4, fp);
-
-		for(size_t b=0; b<chunksize; b++)
-			putchar(chunkdata[b]);
+		/* allocate and read chunk data to structure */
+		cmember->data=malloc(cmember->length);
+		fread(cmember->data, 1, cmember->length, fp);
+		fread(cmember->crc, 1, 4, fp);
 
 	}
 
